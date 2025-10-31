@@ -1,7 +1,21 @@
-<?php
-// footer.php - Rodapé do site
-?>
+</div>
 
-<footer style="text-align:center; margin-top:20px; padding:10px; border-top:1px solid #ccc; font-family:Arial, sans-serif; font-size:14px;">
-    <p>&copy; <?php echo date('Y'); ?> Meu Sistema - Todos os direitos reservados</p>
+<footer>
+    <hr>
+    <p style="text-align: center; font-size: 0.8em; color: #666;">
+        &copy; <?php echo date("Y"); ?> <strong>PHP PDO</strong>. Todos os direitos reservados.
+        <br>
+        Ferramentas de Banco de Dados: 
+        <?php
+        // Exibe o tipo de banco utilizado
+        if (defined('DB_TYPE')) {
+            echo 'Conectado via PDO a <strong>' . strtoupper(DB_TYPE) . '</strong>.';
+        } else {
+            echo 'Configuração de conexão pendente.';
+        }
+        ?>
+    </p>
 </footer>
+
+</body>
+</html>

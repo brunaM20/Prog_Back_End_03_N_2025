@@ -1,62 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <?php
+<?php
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: cadastro.php");
     exit;
 }
 
-$email = trim($_POST["email"] ?? '');
-$senha_pura = $_POST["senha"] ?? '';
-$data = $_POST["data"] ?? '';
+$nome_dono = trim($_POST["nome_dono"] ?? '');
+$telefone = trim($_POST["telefone"] ?? '');
+$nome_pet = trim($_POST["nome_pet"] ?? '');
+$procedimento = trim($_POST["procedimento"] ?? '');
+$data_agendada = trim($_POST["data_agendada"] ?? '');
 
-
-if (empty($email) || empty($senha_pura) || empty($data)) {
-    // Redireciona para o formulário com mensagem de erro GET
+// Validação de campos
+if (empty($nome_dono) || empty($telefone) || empty($nome_pet) || empty($procedimento) || empty($data_agendada)) {
     $msg = urlencode("Por favor, preencha todos os campos do formulário.");
     header("Location: cadastro.php?status=error&msg={$msg}");
     exit;
 }
 
-$senha_hash = password_hash($senha_pura, PASSWORD_DEFAULT);
-
 require_once 'conecta.php';
 
-$query = "INSERT INTO user (email, senha, data) VALUES (:email, :senha, :data)";
+$query = "INSERT INTO agendamentos (nome_dono, telefone, nome_pet, procedimento, data_agendada)
+          VALUES (:nome_dono, :telefone, :nome_pet, :procedimento, :data_agendada)";
 
 try {
     $stmt = $pdo->prepare($query);
 
-    // BindValues: Prevenção contra SQL Injection
-    $stmt->bindValue(':email', $email);
-    $stmt->bindValue(':senha', $senha_hash);
-    $stmt->bindValue(':data', $data);
+    $stmt->bindValue(':nome_dono', $nome_dono);
+    $stmt->bindValue(':telefone', $telefone);
+    $stmt->bindValue(':nome_pet', $nome_pet);
+    $stmt->bindValue(':procedimento', $procedimento);
+    $stmt->bindValue(':data_agendada', $data_agendada);
 
     $stmt->execute();
-    
-    // Sucesso: Redireciona para 'seleciona.php' com mensagem GET
-    $msg = urlencode("Usuário **" . htmlspecialchars($email) . "** cadastrado com sucesso! ID: " . $pdo->lastInsertId());
+
+    $id = $pdo->lastInsertId();
+    $msg = urlencode("Agendamento de <b>" . htmlspecialchars($nome_pet) . "</b> cadastrado com sucesso! ID: {$id}");
     header("Location: seleciona.php?status=success&msg={$msg}");
     exit;
 
 } catch (PDOException $e) {
-    // Erro de BD: Redireciona para 'index.php' com mensagem GET
-    if ($e->getCode() === '23000') { 
-        // Erro de chave única (email duplicado)
-        $msg = urlencode("O email '**" . htmlspecialchars($email) . "**' já está cadastrado. Tente outro.");
-    } else {
-        $msg = urlencode("Erro de BD: " . $e->getMessage());
-    }
+    $msg = urlencode("Erro ao inserir no banco de dados: " . $e->getMessage());
     header("Location: index.php?status=error&msg={$msg}");
     exit;
 }
 ?>
-</body>
-</html>

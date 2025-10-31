@@ -1,19 +1,37 @@
 <?php
-// Define o tipo de banco de dados: 'sqlite' ou 'mysql'
-define('DB_TYPE', 'sqlite'); // Altere para 'mysql' para usar MySQL
+/**
+ * ======================================
+ * CONFIGURAÇÕES DE BANCO DE DADOS (PDO)
+ * ======================================
+ * Suporte a: SQLite e MySQL
+ * Altere a constante DB_TYPE conforme o banco desejado.
+ */
 
-// Configuração para SQLite
+// Tipo de banco: 'sqlite' ou 'mysql'
+define('DB_TYPE', 'sqlite'); // 🔄 Altere para 'mysql' se quiser usar MySQL
+
+// =========================
+// Configurações SQLite
+// =========================
 if (DB_TYPE === 'sqlite') {
-    define('DATABASE_SQLITE', __DIR__ . '/database.sqlite3'); // caminho absoluto é mais seguro
-} 
-// Configuração para MySQL
+    define('DATABASE_SQLITE', __DIR__ . '/database.sqlite3'); 
+    // __DIR__ garante o caminho absoluto do arquivo (evita erro de diretório)
+}
+
+// =========================
+// Configurações MySQL
+// =========================
 elseif (DB_TYPE === 'mysql') {
+    define('HOST_MYSQL', 'localhost');
+    define('DBNAME_MYSQL', 'test');
     define('USER_MYSQL', 'root');
     define('PASS_MYSQL', '');
-    define('DBNAME_MYSQL', 'test');
-    define('HOST_MYSQL', 'localhost');
-} 
+}
+
+// =========================
+// Erro de configuração
+// =========================
 else {
-    die('SGBD não definido! <b>' . DB_TYPE . '</b>');
+    die('❌ Tipo de banco de dados não definido corretamente em config.php');
 }
 ?>

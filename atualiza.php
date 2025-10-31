@@ -2,46 +2,52 @@
 require_once 'config.php';
 require_once 'conecta.php';
 
-// Valores de exemplo a serem atualizados
-$id_alvo = 1; 
-$novo_email = 'novo.admin@exemplo.com';
-$nova_senha_pura = 'senha1234';
-$nova_data = date('Y-m-d');
+// Exemplo: atualiza o agendamento com ID 1
+$id_alvo = 1;
 
-// Hashing da nova senha
-$nova_senha_hash = password_hash($nova_senha_pura, PASSWORD_DEFAULT);
+$novo_nome_dono = 'Maria Silva';
+$novo_telefone = '(11) 99999-1234';
+$novo_nome_pet = 'Thor';
+$novo_procedimento = 'Tosa completa';
+$nova_data_agendada = '2025-11-10';
 
-$query = "UPDATE `user` 
-          SET email = :email, senha = :senha, `data` = :data 
-          WHERE id_user = :id_user";
+// Query de atualização
+$query = "UPDATE agendamentos 
+          SET nome_dono = :nome_dono, 
+              telefone = :telefone, 
+              nome_pet = :nome_pet, 
+              procedimento = :procedimento, 
+              data_agendada = :data_agendada 
+          WHERE id_agendamento = :id_agendamento";
+
 $stmt = $pdo->prepare($query);
 
-$stmt->bindValue(':email', $novo_email);
-$stmt->bindValue(':senha', $nova_senha_hash);
-$stmt->bindValue(':data', $nova_data);
-$stmt->bindValue(':id_user', $id_alvo, PDO::PARAM_INT);
+// Bind de parâmetros
+$stmt->bindValue(':nome_dono', $novo_nome_dono);
+$stmt->bindValue(':telefone', $novo_telefone);
+$stmt->bindValue(':nome_pet', $novo_nome_pet);
+$stmt->bindValue(':procedimento', $novo_procedimento);
+$stmt->bindValue(':data_agendada', $nova_data_agendada);
+$stmt->bindValue(':id_agendamento', $id_alvo, PDO::PARAM_INT);
 
 try {
     $stmt->execute();
     $linhas_afetadas = $stmt->rowCount();
 
     if ($linhas_afetadas > 0) {
-        $msg = urlencode("Usuário ID {$id_alvo} atualizado (Email: {$novo_email}) com sucesso!");
+        $msg = urlencode("✅ Agendamento ID {$id_alvo} atualizado com sucesso para o pet {$novo_nome_pet}!");
         header("Location: seleciona.php?status=success&msg={$msg}");
     } else {
-        $msg = urlencode("Nenhuma linha foi atualizada. O ID {$id_alvo} pode não existir, ou os dados já estavam iguais.");
+        $msg = urlencode("⚠️ Nenhuma linha foi atualizada. O ID {$id_alvo} pode não existir ou os dados já estavam iguais.");
         header("Location: index.php?status=error&msg={$msg}");
     }
-
 } catch (PDOException $e) {
-    if ($e->getCode() === '23000') { 
-        $msg = urlencode("Erro ao atualizar: O email '{$novo_email}' já está em uso por outro usuário.");
-    } else {
-        $msg = urlencode("Erro ao atualizar: " . $e->getMessage());
-    }
+    $msg = urlencode("Erro ao atualizar: " . $e->getMessage());
     header("Location: index.php?status=error&msg={$msg}");
 }
 
+// Fecha conexões
 $stmt = null;
 $pdo = null;
 exit;
+?>
